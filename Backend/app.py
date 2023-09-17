@@ -9,7 +9,7 @@
 # import pandas as pd
 
 
-# app = Flask(__name__)
+# app = Flask(_name_)
 
 # # Load your model here
 # model = load_model(
@@ -72,13 +72,13 @@
 #     return render_template("index.html", prediction={"text": ""})
 
 
-# if __name__ == "__main__":
+# if _name_ == "_main_":
 #     app.run(debug=True)
 
 
 import os
 import cv2
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template,send_file
 from keras.models import load_model
 import numpy as np
 import tensorflow as tf
@@ -139,12 +139,12 @@ def extract_frames(video, interval):
             timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
             predicted_labels_timestamps.append(timestamp)
 
-            arr2 = [n for n in predicted_labels if n != "88888"]
+            arr2 = [n for n in predicted_labels if n != "65688"]
             print(arr2)
             arr2_timestamps = [
                 predicted_labels_timestamps[i]
                 for i in range(len(predicted_labels))
-                if predicted_labels[i] != "88888"
+                if predicted_labels[i] != "65688"
             ]
             print(arr2_timestamps)
 
@@ -152,16 +152,21 @@ def extract_frames(video, interval):
 
             Data = pandas.DataFrame(data)
             Data.to_csv("frame.csv")
+            # , mode='a', header=False, index=False
 
-            #mysql databasre handle
-            db1=con.connect(host='localhost',user='root',password='12345',database='ladleworker')
+            # mysql databasre handle
+            db1 = con.connect(
+                host="localhost", user="root", password="12345", database="ladleworker"
+            )
 
-            cur=db1.cursor() 
-            s='INSERT INTO ladle VALUES(%s,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)'
-            arr=arr2
+            cur = db1.cursor()
+            s = "INSERT INTO ladle VALUES(%s,CURRENT_TIMESTAMP,CURRENT_TIMESTAMP)"
+            arr = arr2
             for x in arr:
-                t=[(x,),]
-                cur.executemany(s,t)
+                t = [
+                    (x,),
+                ]
+                cur.executemany(s, t)
                 db1.commit()
 
         # Increment our frame counter
@@ -205,6 +210,10 @@ def upload_file():
         )
 
     return render_template("index.html", prediction={"text": ""})
+
+@app.route('/download_csv')
+def download_csv():
+    return send_file('frame.csv', as_attachment=True)
 
 
 if __name__ == "__main__":

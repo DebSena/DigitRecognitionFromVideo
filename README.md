@@ -1,1 +1,1 @@
-# DigitRecognitionFromVideo
+# Team-71
